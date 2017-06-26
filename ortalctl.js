@@ -106,18 +106,12 @@ function init_gpio() {
 }
 
 function ortal_off(callback) {
-  if (status === STATUS_FIRE_STOPPING) //nothing to do
-    return callback(null);
   if (status === STATUS_FIRE_STARTING) {
     // Wait for the fire to finish starting before turning it off
     return setTimeout(function() {
       ortal_off(callback)
     }, ON_TIME);
   }
-  send_fireoff(callback);
-}
-
-function send_fireoff(callback) {
   status = STATUS_FIRE_STOPPING
   pins[1].digitalWrite(0)
   pins[2].digitalWrite(0)
@@ -142,10 +136,6 @@ function ortal_on(callback) {
     return setTimeout(function() {
       ortal_on(callback)
     }, OFF_TIME)
-  }
-  if (status === STATUS_FIRE_STARTING) {
-    // Nothing to do
-    return
   }
   // Energize the 1, 3 relays for fire on
   status = STATUS_FIRE_STARTING
