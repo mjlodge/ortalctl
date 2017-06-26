@@ -39,14 +39,14 @@ controller. See [the home automation spec sheet from Mertik Maxitrol](http://med
 Install Docker on your Raspberry Pi, for example by burning a trusted pre-prepared image onto the Pi
 flash card by [following a guide like this one from Hypriot](https://blog.hypriot.com/getting-started-with-docker-on-your-arm-device/). Or you can just burn the [standard Raspbian Lite image](https://www.raspberrypi.org/downloads/raspbian/)
 and then install Docker for Pi by doing
-...
+```
 curl -sSL https://get.docker.com | sh
-...
+```
 Copy the files from this repo into an empty directory created on your Pi
 (you can do `git clone` or just copy them). Then, build the container:
-...
+```
 docker build -t ortalctl .
-...
+```
 This will take some time, because the Pi has to download a base container and then install a bunch of packages, so go and
 have a cup of tea and come back in a few minutes.
 
@@ -55,9 +55,9 @@ have a cup of tea and come back in a few minutes.
 Ortalctl needs special privileges because it writes directly to the memory device to control the output pins, and
 because I'm using the `pigpio` library, and it does all kinds of clever things with DMA etc. The net: you need to run the
 container in privileged mode, like this:
-...
+```
 docker run -it -p 8000:8000 --privileged ortalctl
-...
+```
 When the container starts it will turn off the fireplace. If it's already off, nothing will happen. Ortalctl does this
 because it has no way to query the status of the fireplace from the Mertik controller, so we put the fire into a known
 state when the container starts, and go from there.
@@ -67,9 +67,9 @@ state when the container starts, and go from there.
 
 The REST API runs on port 8000. If you ran the command above, the API is available on port 8000 of the host Raspberry Pi.
 To check that it's running properly, try the /hello command from the Pi's command line like this:
-...
+```
 curl 127.0.0.1:8000/hello
-...
+```
 You should see Hello back from `ortalctl`. The other commands are:
 
 ## `/on`
