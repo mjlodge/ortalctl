@@ -11,3 +11,5 @@ before_script:
   - cd PIGPIO
   - make && sudo make install
   - npm install pigpio restify
+script:
+  node ortalctl.js
