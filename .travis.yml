@@ -2,7 +2,7 @@ language: node_js
 addons:
   apt:
     packages:
-      - build-essentials
+      - build-essential
       - python
 before_script:
   - set -eux
