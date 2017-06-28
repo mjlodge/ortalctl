@@ -6,9 +6,9 @@ addons:
       - python
 before_script:
   - set -eux
-	- wget -O pigpio.tar http://abyz.co.uk/rpi/pigpio/pigpio.tar
-	- tar -xvf pigpio.tar
-	- rm pigpio.tar
-	- cd PIGPIO
-	- make && make install
+  - wget -O pigpio.tar http://abyz.co.uk/rpi/pigpio/pigpio.tar
+  - tar -xvf pigpio.tar
+  - rm pigpio.tar
+  - cd PIGPIO
+  - make && make install
   - npm install pigpio restify
