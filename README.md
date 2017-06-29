@@ -17,12 +17,12 @@ container running on the Pi, which makes it easier to assemble and maintain
 the collection of services running on embedded hardware. The `Dockerfile` is
 provided, and that is the easiest way to build it, but you are not forced
 to use Docker and can just run `sudo node ortalctl.js` provided you have installed
-the dependencies, `pigpio` and `express`.
+the dependencies, `pigpio` and `restify`.
 
 ## Use at your own risk
 
 This is a program that controls a physical device, which means it's possible to
-cause physical damage if improperly operated. There is no warranty of any kind
+cause physical damage if improperly configured. There is no warranty of any kind
 with this software (see LICENSE file) -- use it at your own risk.
 
 ## Hardware configuration
@@ -95,6 +95,13 @@ situation, the best thing to do is run the `/off` command and then the fireplace
 
 Ortalctl has interlocks that prevent an On operation from interrupting an Off operation, and vice versa. The second command
 you send will run after the first command has completed.
+
+Ortalctl also rate-limits commands per IP address to save wear and tear on the fireplace controls.
+It will only accept a maximum of 2 requests/sec per IP. So if you do something like
+```
+curl 127.0.0.1:8000/on ; curl 127.0.0.1:8000/off ; curl 127.0.0.1:8000/on ; curl 127.0.0.1:8000/off"
+```
+then you will get a rate limiting error status code and message for the 3rd and 4th requests.
 
 ## Running without Docker
 
