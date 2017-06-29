@@ -99,7 +99,7 @@ you send will run after the first command has completed.
 Ortalctl also rate-limits commands per IP address to save wear and tear on the fireplace controls.
 It will only accept a maximum of 2 requests/sec per IP. So if you do something like
 ```
-curl 127.0.0.1:8000/on ; curl 127.0.0.1:8000/off ; curl 127.0.0.1:8000/on ; curl 127.0.0.1:8000/off"
+curl 127.0.0.1:8000/on ; curl 127.0.0.1:8000/off ; curl 127.0.0.1:8000/on ; curl 127.0.0.1:8000/off
 ```
 then you will get a rate limiting error status code and message for the 3rd and 4th requests.
 
