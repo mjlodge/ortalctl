@@ -10,7 +10,7 @@ RUN set -eux;\
 	rm pigpio.tar;\
 	cd PIGPIO;\
 	make && make install;
-RUN npm install express pigpio
+RUN npm install restify pigpio
 COPY ortalctl.js /home/ortalctl
 EXPOSE 8000
 CMD ["node","ortalctl.js"]

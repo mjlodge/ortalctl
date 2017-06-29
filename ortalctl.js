@@ -20,21 +20,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-const express = require('express')
-const app = express()
+const restify = require('restify')
+const app = restify.createServer();
 var gpio = require('pigpio').Gpio
 
+const PORT = 8000 // Port to listen on
 
 const STATUS_INIT = "0 Initializing"
 const STATUS_FIRE_OFF = "1 Fire off"
-const STATUS_FIRE_STARTING = "2 In process of starting fire"
+const STATUS_FIRE_STARTING = "2 Turning fire on"
 const STATUS_FIRE_LIT = "3 Fire lit"
-const STATUS_FIRE_STOPPING = "4 In process of turning fire off"
+const STATUS_FIRE_STOPPING = "4 Turning fire off"
 const STATUS_ERROR = "5 Error in fire control"
 var status = STATUS_INIT
 
-const OFF_TIME = 1000 // Duration of closed relays for fire off command per Mertik spec
-const ON_TIME = 1000 // Duraton of closed relays for fire on command per Mertik spec
+const OFF_TIME = 1000 // Duration for fire off command per Mertik spec
+const ON_TIME = 1000 // Duraton for fire on command per Mertik spec
 
 const RPINS = { // Defines which GPIO pins connect to the 3 relays controlling the 3 wires of the fire
   1: 17,
@@ -42,47 +43,59 @@ const RPINS = { // Defines which GPIO pins connect to the 3 relays controlling t
   3: 22
 }
 
-var pins = Array(3); // Array of pigpio GPIO pin objects
+var pins = Array(3) // Array of pigpio GPIO pin objects
+var cmdQueue = 0 // Number of commands currently pending
 
 console.log('Initializing...')
-
 init_fire(function(err) {
   if (err) {
-    console.log('Error initializing fire -- quitting')
-    process.exitCode = 1;
+    return new Error('Error initializing fire -- quitting')
   } else {
-    app.get('/hello', function(req, res) {
-      res.status(200).send('Hello\n')
+    app.use(restify.acceptParser(app.acceptable)) // Don't accept junk
+    app.use(restify.throttle({ // Throttle connections to save on wear & tear
+      rate: 2, // Max 2 requests per second
+      burst: 2,
+      ip: true})) // Track per IP address
+    app.get('/hello', function(req, res, next) {
+      textOut(res)
+      res.send(200, 'Hello, ' + req.header('User-Agent') + '\n')
+      next()
     })
 
-    app.get('/status', function(req, res) {
-      res.status(200).send(status + "\n")
+    app.get('/status', function(req, res, next) {
+      textOut(res)
+      res.send(200, status + "\n")
+      next()
     })
 
-    app.get('/on', function(req, res) {
+    app.get('/on', function(req, res, next) {
       ortal_on(function(err) {
+        textOut(res)
         if (err) {
-          res.status(503).send('Error starting fire')
+          res.send(503, 'Error starting fire\n')
         }
         else {
-          res.status(200).send('Fire on')
+          res.send(200, 'Fire on\n')
         }
       })
+      next()
     })
 
-    app.get('/off', function(req, res) {
+    app.get('/off', function(req, res, next) {
       ortal_off(function(err) {
+        textOut(res)
         if (err) {
-          res.status(503).send('Error stopping fire')
+          res.send(503, 'Error stopping fire\n')
         }
         else {
-          res.status(200).send('Fire off')
+          res.send(200, 'Fire off\n')
         }
       })
+      next()
     })
 
-    app.listen(8000, function() {
-      console.log('Ortal fire app listening on port 8000')
+    app.listen(PORT, function() {
+      console.log('Ortal fire app listening at %s', app.url)
     })
   }
 })
@@ -152,4 +165,8 @@ function end_fireon(callback) {
   pins[3].digitalWrite(1)
   status = STATUS_FIRE_LIT
   callback(null)
+}
+
+function textOut(res) {
+  return res.header('Content-Type', 'text/plain')
 }
