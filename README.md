@@ -1,4 +1,4 @@
-# Ortalctl: A REST API for Ortal gas fireplaces
+# Ortalctl: A REST API for Ortal / Mertik Maxitrol gas fireplaces
 
 I wanted to be able to control my Ortal gas fireplace with Alexa and/or other
 home automation, so it needed to have an API. Mertik Maxitrol supplies the
@@ -16,7 +16,7 @@ I also wrote this in such a way that it is designed to be deployed as a Docker
 container running on the Pi, which makes it easier to assemble and maintain
 the collection of services running on embedded hardware. The `Dockerfile` is
 provided, and that is the easiest way to build it, but you are not forced
-to use Docker and can just run `node ortalctl.js` provided you have installed
+to use Docker and can just run `sudo node ortalctl.js` provided you have installed
 the dependencies, `pigpio` and `express`.
 
 ## Use at your own risk
@@ -28,15 +28,20 @@ with this software (see LICENSE file) -- use it at your own risk.
 ## Hardware configuration
 
 The program assumes that there are 3 relays connected to Raspberry Pi pins labelled
-17, 27 and 22 on the Raspberry Pi GPIO. These pins are next to each other on the Pi GPIO.
-The first relay
-drives control wire 1 on the Maxitrol connector, the second control wire 2,
-the third control wire 3. These are all wired to a common return wire on the Maxitrol
-controller. See [the home automation spec sheet from Mertik Maxitrol](http://media.druservice.nl/Documents/Data/IH_Mertik_2008_EN_GV60_external_source.pdf)
+17, 27 and 22. Raspberry Pi GPIO numbering is confusing: these are the Broadcom pin numbers
+and those three pins are actually next to each other on the Pi GPIO connector. The first relay
+drives control wire 1 on the Mertik 4-wire connector, the second control wire 2,
+the third control wire 3. Wire all of the relay "common" contacts to the common return
+wire on the Maxitrol connector. See [the home automation spec sheet from Mertik Maxitrol](http://media.druservice.nl/Documents/Data/IH_Mertik_2008_EN_GV60_external_source.pdf)
+
+Wire up the relays such that each control wire is connected to the "Normally open"
+connector of the relay. That means that if the relays are powered off, nothing happens.
+When the relay is energized, the connection closes, completing the circuit between
+the control wire and the common return wire of the Mertik controller.
 
 ## Installation
 
-Install Docker on your Raspberry Pi, for example by burning a trusted pre-prepared image onto the Pi
+Install Docker on your Raspberry Pi, for example by burning a trusted Docker-optimized Pi boot filesystem onto the Pi
 flash card by [following a guide like this one from Hypriot](https://blog.hypriot.com/getting-started-with-docker-on-your-arm-device/). Or you can just burn the [standard Raspbian Lite image](https://www.raspberrypi.org/downloads/raspbian/)
 and then install Docker for Pi by doing
 ```
@@ -52,21 +57,21 @@ have a cup of tea and come back in a few minutes.
 
 ## Running the container
 
-Ortalctl needs special privileges because it writes directly to the memory device to control the output pins, and
+Ortalctl needs special privileges because it writes directly to Pi memory to control the output pins, and
 because I'm using the `pigpio` library, and it does all kinds of clever things with DMA etc. The net: you need to run the
 container in privileged mode, like this:
 ```
 docker run -it -p 8000:8000 --privileged ortalctl
 ```
-When the container starts it will turn off the fireplace. If it's already off, nothing will happen. Ortalctl does this
+When the container starts it will turn off the fireplace. Ortalctl does this
 because it has no way to query the status of the fireplace from the Mertik controller, so we put the fire into a known
 state when the container starts, and go from there.
 
-
 ## The REST API
 
-The REST API runs on port 8000. If you ran the command above, the API is available on port 8000 of the host Raspberry Pi.
-To check that it's running properly, try the /hello command from the Pi's command line like this:
+The REST API runs on port 8000. If you ran the `docker run` command given above, the API is available on
+port 8000 of the host Raspberry Pi. To check that it's running properly, try the /hello command from the Pi's
+command line like this:
 ```
 curl 127.0.0.1:8000/hello
 ```
@@ -90,3 +95,11 @@ situation, the best thing to do is run the `/off` command and then the fireplace
 
 Ortalctl has interlocks that prevent an On operation from interrupting an Off operation, and vice versa. The second command
 you send will run after the first command has completed.
+
+## Running without Docker
+
+If you run this without using Docker, then remember that the code needs root privileges to operate properly, so you
+must do something like
+```
+sudo node ortalctl.js
+```

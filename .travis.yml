@@ -1,0 +1,16 @@
+language: node_js
+addons:
+  apt:
+    packages:
+      - build-essential
+      - python
+before_script:
+  - wget -O pigpio.tar http://abyz.co.uk/rpi/pigpio/pigpio.tar
+  - tar -xvf pigpio.tar
+  - rm pigpio.tar
+  - cd PIGPIO
+  - make && sudo make install
+  - cd ..
+  - npm install pigpio restify
+script:
+  node ortalctl.js
