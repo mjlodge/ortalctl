@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2017 Mathew Lodge
+Copyright (c) 2017-2020 Mathew Lodge
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@ SOFTWARE.
 */
 
 const restify = require('restify')
-const app = restify.createServer();
+const app = restify.createServer()
 var gpio = require('pigpio').Gpio
 
 const PORT = 8000 // Port to listen on
