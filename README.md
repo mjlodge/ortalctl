@@ -27,7 +27,7 @@ with this software (see LICENSE file) -- use it at your own risk.
 
 ## Hardware configuration
 
-The program assumes that the Mertik control board's 3 wires are connected to Raspberry Pi pins
+The program assumes that the Mertik control board's 3 wires are connected to 3 relays using Raspberry Pi pins
 17, 27 and 22 on the GPIO. Raspberry Pi GPIO numbering is confusing: these are the Broadcom pin numbers
 and those three pins are actually next to each other on the Pi GPIO connector. The first relay
 drives control wire 1 on the Mertik 4-wire connector, the second control wire 2,
