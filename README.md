@@ -29,13 +29,22 @@ with this software (see LICENSE file) -- use it at your own risk.
 
 The program assumes that the Mertik control board's 3 wires are connected to 3 relays using Raspberry Pi pins
 17, 27 and 22 on the GPIO. Raspberry Pi GPIO numbering is confusing: these are the Broadcom pin numbers
-and those three pins are actually next to each other on the Pi GPIO connector. The first relay
-drives control wire 1 on the Mertik 4-wire connector, the second control wire 2,
+and those three pins are actually next to each other on the Pi GPIO connector.
+
+I used the Elegoo 4-Channel 5V DC relay board, but pretty much any 5V DC make/model should work.
+It is _really important_ that you use relays between the Pi and the fire control board, because the
+Pi's pins can't handle/drive much current and you can easily fry your Pi
+if something goes wrong (relays use opto-isolators so that there is no electrical path between the Pi
+and the fire control board). You also want to wire the relay ground (return) wires together and to
+the return (ground) wire of the fire control board to stop the control wire voltages from drifting and
+causing malfunctions.
+
+The first relay drives control wire 1 on the Mertik 4-wire connector, the second control wire 2,
 the third control wire 3. Wire all of the relay "common" contacts to the common return
 wire on the Maxitrol connector. See [the home automation spec sheet from Mertik Maxitrol](http://media.druservice.nl/Documents/Data/IH_Mertik_2008_EN_GV60_external_source.pdf)
 
 Wire up the relays such that each control wire is connected to the "Normally open"
-connector of the relay. That means that if the relays are powered off, nothing happens.
+connector of the relay board. That means that if the relays are powered off, nothing happens.
 When the relay is energized, the connection closes, completing the circuit between
 the control wire and the common return wire of the Mertik controller.
 
